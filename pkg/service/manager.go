@@ -17,15 +17,16 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/yaml.v3"
 
-	"github.com/livekit/egress/pkg/config"
-	"github.com/livekit/egress/pkg/errors"
-	"github.com/livekit/egress/pkg/ipc"
-	"github.com/livekit/egress/pkg/stats"
 	"github.com/livekit/protocol/livekit"
 	"github.com/livekit/protocol/logger"
 	"github.com/livekit/protocol/rpc"
 	"github.com/livekit/protocol/tracer"
 	"github.com/livekit/protocol/utils"
+
+	"github.com/livekit/egress/pkg/config"
+	"github.com/livekit/egress/pkg/errors"
+	"github.com/livekit/egress/pkg/ipc"
+	"github.com/livekit/egress/pkg/stats"
 )
 
 type ProcessManager struct {
@@ -152,6 +153,10 @@ func (s *ProcessManager) isIdle() bool {
 	defer s.mu.RUnlock()
 
 	return len(s.activeHandlers) == 0
+}
+
+func (s *ProcessManager) sizeActiveHandlers() int {
+	return len(s.activeHandlers)
 }
 
 func (s *ProcessManager) status() map[string]interface{} {

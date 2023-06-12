@@ -11,15 +11,16 @@ import (
 	"github.com/frostbyte73/core"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/livekit/egress/pkg/config"
-	"github.com/livekit/egress/pkg/stats"
-	"github.com/livekit/egress/version"
 	"github.com/livekit/protocol/egress"
 	"github.com/livekit/protocol/livekit"
 	"github.com/livekit/protocol/logger"
 	"github.com/livekit/protocol/rpc"
 	"github.com/livekit/protocol/tracer"
 	"github.com/livekit/psrpc"
+
+	"github.com/livekit/egress/pkg/config"
+	"github.com/livekit/egress/pkg/stats"
+	"github.com/livekit/egress/version"
 )
 
 const shutdownTimer = time.Second * 30
@@ -138,15 +139,7 @@ func (s *Service) StartEgressAffinity(req *rpc.StartEgressRequest) float32 {
 		return -1
 	}
 
-	if s.manager.isIdle() {
-		// group multiple track and track composite requests.
-		// if this instance is idle and another is already handling some, the request will go to that server.
-		// this avoids having many instances with one track request each, taking availability from room composite.
-		return 0.5
-	} else {
-		// already handling a request and has available cpu
-		return 1
-	}
+	return 1.0 / (float32(s.manager.sizeActiveHandlers()) + 1.0)
 }
 
 func (s *Service) ListActiveEgress(ctx context.Context, _ *rpc.ListActiveEgressRequest) (*rpc.ListActiveEgressResponse, error) {
